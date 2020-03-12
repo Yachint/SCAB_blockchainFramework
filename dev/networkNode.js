@@ -34,8 +34,16 @@ app.get('/mine', function(req, res){
     const previousBlockHash = lastBlock['hash'];
     const currentBlockData = {
         transactions: scabChain.pendingTransactions,
-        index: lastBlock['index']+1;
+        index: lastBlock['index']+1
     }
+
+    const blockHash = hash(currentBlockData, previousBlockHash);
+    const newBlock = scabChain.createNewBlock(previousBlockHash,blockHash);
+
+    res.json({
+        note: "New block mined successfully",
+        block: newBlock
+    });
 })
 
 app.listen(3005, function(){

@@ -4,7 +4,8 @@
   "description": "Self Compressing Activity based Blockchain Framework",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --watch dev -e js dev/networkNode.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,14 @@
   "bugs": {
     "url": "https://github.com/Yachint/SCAB_blockchainFramework/issues"
   },
-  "homepage": "https://github.com/Yachint/SCAB_blockchainFramework#readme"
+  "homepage": "https://github.com/Yachint/SCAB_blockchainFramework#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "crypto": "^1.0.1",
+    "express": "^4.17.1",
+    "nodemon": "^2.0.2",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5",
+    "uuid": "^7.0.2"
+  }
 }

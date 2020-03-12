@@ -9,37 +9,38 @@ function blk(){
     this.chainSize = this.chain.length;
     // this.currentNodeUrl = currentNodeUrl;
     this.networkNodes = [];
-}
+    this.createNewBlock(100,'0');
+};
 
-blk.prototype.addToPendingTx = (transactionObj) => {
+blk.prototype.addToPendingTx = function(transactionObj){
     this.pendingTransactions.push(transactionObj);
     return this.getLastBlock()['index'] + 1;
-}
+};
 
-blk.prototype.createNewBlock = (previousBlockhash) => {
+blk.prototype.createNewBlock = function(previousBlockhash, givenHash){
     const newBlock = {
         index: this.chain.length+1,
         timestamp: Date.now(),
         transactions: this.pendingTransactions,
-        hash: hash(this.pendingTransactions, previousBlockhash),
+        hash: givenHash,
         previousBlockhash : previousBlockhash
-    }
+    };
 
     this.pendingTransactions = [];
     this.chain.push(newBlock);
     this.chainSize++;
 
     return newBlock;
-}
+};
 
-blk.prototype.getLastBlock = () => {
+blk.prototype.getLastBlock = function(){
     return this.chain[this.chainSize-1];
-}
+};
 
-blk.prototype.createNewTransaction = (orderId, senderPub, changedState) => {
+blk.prototype.createNewTransaction = function(orderId, senderPub, changedState){
 
     var _newHash = createBlobHash(changedState);
-    var _orderHash = crypto.createHash('sha256').update(orderId).digest('hex');
+    var _orderHash = crypto.createHash('sha256').update(orderId+senderPub).digest('hex');
 
     const newTransaction = {
         txHash: createTxHash(_orderHash, senderPub, changedState),
@@ -56,17 +57,17 @@ blk.prototype.createNewTransaction = (orderId, senderPub, changedState) => {
     this.hashTable[_orderHash] = {...changedState};
 
     return newTransaction;
-}
+};
 
 const createBlobHash = (state) => {
     var stateToString = JSON.stringify(state);
-    return crypto.createHash('sha256').update(orderId).digest('hex');
-}
+    return crypto.createHash('sha256').update(stateToString).digest('hex');
+};
 
 const createTxHash = (_orderHash, senderPub, changedState) =>{
     var infoBlock = ""+_orderHash+senderPub+JSON.stringify(changedState);
     return crypto.createHash('sha256').update(infoBlock).digest('hex');
-}
+};
 
 module.exports = blk;
 
