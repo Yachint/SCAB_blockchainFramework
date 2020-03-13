@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const blockHasher = require('./hash');
+const DHT = require('./DHT');
 
 function blk(){
     this.hashTable = {};
@@ -7,6 +8,7 @@ function blk(){
     this.chainSize = this.chain.length;
     this.pendingTransactions = [];
     this.chainSize = this.chain.length;
+    this.hashTable = new DHT();
     // this.currentNodeUrl = currentNodeUrl;
     this.networkNodes = [];
     this.createNewBlock(100,'0');
@@ -26,6 +28,7 @@ blk.prototype.createNewBlock = function(previousBlockhash, givenHash){
         previousBlockhash : previousBlockhash
     };
 
+    this.hashTable.updateHashTable(this.pendingTransactions);
     this.pendingTransactions = [];
     this.chain.push(newBlock);
     this.chainSize++;
@@ -36,6 +39,10 @@ blk.prototype.createNewBlock = function(previousBlockhash, givenHash){
 blk.prototype.getLastBlock = function(){
     return this.chain[this.chainSize-1];
 };
+
+// blk.prototype.viewHashTable = function(){
+//     return this.hashTable;
+// }
 
 blk.prototype.createNewTransaction = function(orderId, senderPub, changedState){
 
@@ -51,13 +58,40 @@ blk.prototype.createNewTransaction = function(orderId, senderPub, changedState){
         stateHash : _newHash
     }
 
-    if(changedState.isAlive === false){
-        delete this.hashTable[_orderHash];
-    }
-    this.hashTable[_orderHash] = {...changedState};
-
     return newTransaction;
 };
+
+blk.prototype.createNewInventoryTx = function(prodId, changedState){
+    const newTransaction = {
+        type: 'Inventory',
+        hash: crypto
+             .createHash('sha256')
+             .update(''+prodId+JSON.stringify(changedState))
+             .digest('hex'),
+        details: {
+            prodId,
+            changedState
+        }
+    }
+
+    return newTransaction;
+}
+
+blk.prototype.createNewStoreTx = function(typeOfStore, changedState){
+    const newTransaction = {
+        type: 'Store',
+        subType: typeOfStore,
+        hash: crypto
+             .createHash('sha256')
+             .update(''+typeOfStore+JSON.stringify(changedState))
+             .digest('hex'),
+        details: {
+            changedState
+        }
+    }
+
+    return newTransaction;
+}
 
 const createBlobHash = (state) => {
     var stateToString = JSON.stringify(state);
@@ -69,5 +103,15 @@ const createTxHash = (_orderHash, senderPub, changedState) =>{
     return crypto.createHash('sha256').update(infoBlock).digest('hex');
 };
 
-module.exports = blk;
+// blk.prototype.updateHashTable = function(){
+//     this.pendingTransactions.map((transaction) => {
+//         if(transaction.changedState.isAlive === false){
+//             delete this.hashTable[transaction.orderHash];
+//         }
+//         else{
+//             this.hashTable[transaction.orderHash] = {...transaction.changedState};
+//         }
+//     });
+// };
 
+module.exports = blk;

@@ -16,6 +16,10 @@ app.get('/', function(req,res){
     res.send('Welcome to Scab Chain v0.001');
 });
 
+app.get('/hashTable',function(req,res){
+    res.send(scabChain.hashTable);
+})
+
 app.get('/blockchain',function(req,res){
     res.send(scabChain);
 });
@@ -28,6 +32,23 @@ app.post('/transaction', function(req, res){
     const blkIndex = scabChain.addToPendingTx(txObj);
     res.json({ note : 'Transaction will be added in block :'+blkIndex});
 });
+
+app.post('/transaction/inventory', function(req, res){
+    const txObj = scabChain
+                  .createNewInventoryTx(req.body.prodId,
+                    req.body.changedState);
+    const blkIndex = scabChain.addToPendingTx(txObj);
+    res.json({ note : 'Transaction will be added in block :'+blkIndex});
+});
+
+
+app.post('/transaction/store', function(req, res){
+    const txObj = scabChain
+                  .createNewStoreTx(req.body.typeOfStore,
+                    req.body.changedState);
+    const blkIndex = scabChain.addToPendingTx(txObj);
+    res.json({ note : 'Transaction will be added in block :'+blkIndex});
+})
 
 app.get('/mine', function(req, res){
     const lastBlock = scabChain.getLastBlock();
@@ -44,7 +65,7 @@ app.get('/mine', function(req, res){
         note: "New block mined successfully",
         block: newBlock
     });
-})
+});
 
 app.listen(3005, function(){
     console.log('listening on port '+3005+' ...');
