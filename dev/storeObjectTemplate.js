@@ -36,10 +36,11 @@ TemplateProvider.prototype.getItemTemplate= function(){
 
 TemplateProvider.prototype.getUserTemplate= function(){
     return {
-        userOrders: {},
+        smartContractAdd: null,
+        userOrders: [],
         name: null,
         email: null,
-        number: 0,
+        number: 0
     };
 };
 
@@ -49,8 +50,9 @@ TemplateProvider.prototype.getOrderTemplate= function(){
         orderId: null,
         deliveryAddress: null,
         sellerConAddress: null,
+        buyerConAddress: null,
         invoice: null,
-        status: null,
+        status: null
     }
 }
 

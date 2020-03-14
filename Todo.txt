@@ -1,0 +1,9 @@
+TASK                                 STATUS
+1. Build Hash map Sync fucntion
+2. Build function to get Order acc
+to order ID
+3. Build Inventory Storage Solution
+4. Sync Inventory Storage Sol with 
+hashmap upton update
+5. Create web3 call backs for orderStatus
+and inventory changes
