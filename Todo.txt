@@ -7,3 +7,4 @@ to order ID
 hashmap upton update
 5. Create web3 call backs for orderStatus
 and inventory changes
+6. Implement endpoint to compress blockchain

@@ -1,7 +1,9 @@
 # SCAB_blockchainFramework
 
+<img src="images/logo.jpg" class="align-right">
 
 Self Compressing Activity Based Blockchain!
+
 
 
 
@@ -52,4 +54,23 @@ For example, we have used this framework to design a decentralized blockchain st
 
 The Load Sharing aspect of this project comes from the fact that the majority of the transactions which relate to changing state of the user's or the store's database are done via our framework which cuts down the average time to process these transactions by 3 times when compared to the traditional way of executing them using web3 and Smart-Contracts.
 
+## Compressing blocks to reduce chain size
 
+Blockchain size is becoming an increasingly concerning and debatable topic. As of writing this document, the bitcoin blockchain size has crossed 250 GB and Ethereum's chain, which is growing 3 times faster than the prior one, has crossed 1 TB in size. 
+
+<img src="images/BasicBlockchain.jpg" class="align-center">
+
+There have been some methods to tackle this situation of syncing the whole chain like pruning offered by Ethereum developers which allows nodes to download part of the chain and still be qualified as a node that can accept transactions and mine blocks but no such solution is offered by bitcoin since they rely on the UTXO model to prevent double spending rather than state based model. This makes them reliant on the whole chain and increases the requirements to become a miner.
+
+We have adopted a hybrid solution in our framework where we divide the duties to two separate chains rather than relying on one :
+
+* **Payments** : Handled by Ethereum and Smart-Contracts
+
+* **Database/Information management** : Handled by SCAB's blockchain along with using IPFS as a decentralized storage solution
+
+
+In our framework we have implemented a functionality which allows us to compress the blocks into a hash using IPFS and store them on subsequent blocks which helps to maintain the chain size while preventing measures like pruning or forking the chain in order to shorten it. Since our payments are handled by Ethereum, we don't need to rely on information about double spending of users and can focus solely on maintaining a global state using a hashmap that scans the mined blocks and issues updates accordingly to the desired destinations.
+
+<img src="images/BlockchainAdvanced(1).jpg" class="align-center">
+
+An example of this functionality can be that we maintain a persistent database using out API server and all the transactions relating to CRUD operations are first mined into blocks and then correspondingly updates the hashmap which then in turns puts out a PUT/PATCH request to our API to update our database.
