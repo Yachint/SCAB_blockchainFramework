@@ -12,7 +12,10 @@ function giveHash(currBlkData, previousBlkHash){
                 .update(hashThis+nonce)
                 .digest("hex");
         
-        if(mHash.charAt(0)==0 && mHash.charAt(1)==0){
+        if(mHash.charAt(0)==0 
+        && mHash.charAt(1)==0 
+        && mHash.charAt(2)==0 
+        && mHash.charAt(3)==0){
             console.log('Hash Accepted! :',mHash);
             console.log('At Nonce:',nonce);
             check = 1;

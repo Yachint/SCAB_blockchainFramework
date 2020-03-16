@@ -71,6 +71,26 @@ We have adopted a hybrid solution in our framework where we divide the duties to
 
 In our framework we have implemented a functionality which allows us to compress the blocks into a hash using IPFS and store them on subsequent blocks which helps to maintain the chain size while preventing measures like pruning or forking the chain in order to shorten it. Since our payments are handled by Ethereum, we don't need to rely on information about double spending of users and can focus solely on maintaining a global state using a hashmap that scans the mined blocks and issues updates accordingly to the desired destinations.
 
-<img src="images/BlockchainAdvanced(1).jpg" class="align-center">
+<img src="images/BlockchainAdvanced (1).jpg" class="align-center">
 
-An example of this functionality can be that we maintain a persistent database using out API server and all the transactions relating to CRUD operations are first mined into blocks and then correspondingly updates the hashmap which then in turns puts out a PUT/PATCH request to our API to update our database.
+An example of this functionality can be that we maintain a persistent database using out API server and all the transactions relating to CRUD operations are first mined into blocks and then correspondingly updates the hashmap which then in turns puts out a PUT/PATCH request to our API to update our database. This flow could also be directed towards web3 where the framework would publish updates directly to the Smart-contract and the contract would then update its state either by itself or handing over the list of updates to a third-party like React.
+
+## Proof of Activity
+
+Our approach towards a consensus algorithm was an algorithm that takes advantage of the number of active participants in the blockchain while also not over burdening them with high mining requirements that lead to problems when running on constrained devices which power, bandwidth and storage restrictions.
+
+Since we view this framework as a hybrid combination of private and public blockchain implementations, algorithms like PoW(Proof of work) and pBFT would be on the extreme ends of our target category. We wanted to have scalability and minimal governance as well as make it secure and hard for attackers to take over the system by just sheer computational power. These were some algorithms that came in that middle category of not being too computationally expensive and also not too easy to break:
+
+* **Proof of Authority(PoA)** - Since validators needed to know each other, we could not use it in our scenario.
+
+
+* **Proof of Elapsed Time(PoET)** - Requires special hardware so not suitable.
+
+
+* **Proof of Importance(PoI)** - Our users differ into two categories so can't give higher importance to one and lower to the other
+
+We came to the conclusion that we needed the presence of our users on our network as a proof of mining the block. In order to achieve this we came up with the concept of merkle tree and decided that in addition to storing the current hash and previous block hash we'll also store the merkle root hash of public keys of random n number of active users on the network at that moment. These parameters will then be hashed by either the network nodes or user nodes who have volunteered to participate to mine.
+
+<img src="images/hash-tree.jpg" class="align-center" width="200>
+
+A merkle tree root hash of all blocks in the chain will also be maintained and synced not only during mining the blocks but also during regular intervals as a way to discourage potential attackers trying to alter the blockchain by taking control of massive amount of computational power.
