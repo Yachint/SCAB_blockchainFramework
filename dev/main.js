@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const blockHasher = require('./hash');
 const DHT = require('./DHT');
+const uuid = require('uuid');
+const currentNodeUrl = process.argv[3];
 
 function blk(){
     this.hashTable = {};
@@ -9,7 +11,7 @@ function blk(){
     this.pendingTransactions = [];
     this.chainSize = this.chain.length;
     this.hashTable = new DHT();
-    // this.currentNodeUrl = currentNodeUrl;
+    this.currentNodeUrl = currentNodeUrl;
     this.networkNodes = [];
     this.createNewBlock(100,'0');
 };
@@ -28,13 +30,23 @@ blk.prototype.createNewBlock = function(previousBlockhash, givenHash){
         previousBlockhash : previousBlockhash
     };
 
-    this.hashTable.updateHashTable(this.pendingTransactions);
+    this.hashTable.updateHashTable(this.pendingTransactions,this.networkNodes);
     this.pendingTransactions = [];
     this.chain.push(newBlock);
     this.chainSize++;
 
     return newBlock;
 };
+
+blk.prototype.receiveUpdate = function(newBlock){
+    this.pendingTransactions = [];
+    this.chain.push(newBlock);
+    this.chainSize++;
+}
+
+blk.prototype.receive_DHT_updates = function(type,subType,primaryKey,change){
+    this.hashTable.updateWithDetails(type,subType,primaryKey,change);
+}
 
 blk.prototype.getLastBlock = function(){
     return this.chain[this.chainSize-1];
@@ -64,6 +76,7 @@ blk.prototype.createNewTransaction = function(orderId, senderPub, changedState){
 blk.prototype.createNewInventoryTx = function(prodId, changedState){
     const newTransaction = {
         type: 'Inventory',
+        transactionid: uuid.v1().split('-').join(""),
         hash: crypto
              .createHash('sha256')
              .update(''+prodId+JSON.stringify(changedState))
@@ -81,6 +94,7 @@ blk.prototype.createNewStoreTx = function(typeOfStore, changedState){
     const newTransaction = {
         type: 'Store',
         subType: typeOfStore,
+        transactionid: uuid.v1().split('-').join(""),
         hash: crypto
              .createHash('sha256')
              .update(''+typeOfStore+JSON.stringify(changedState))

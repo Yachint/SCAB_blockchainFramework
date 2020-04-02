@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --watch dev -e js dev/networkNode.js"
+    "node_1": "nodemon --watch dev -e js dev/networkNode.js 3011 http://localhost:3011",
+    "node_2": "nodemon --watch dev -e js dev/networkNode.js 3012 http://localhost:3012",
+    "node_3": "nodemon --watch dev -e js dev/networkNode.js 3013 http://localhost:3013",
+    "node_4": "nodemon --watch dev -e js dev/networkNode.js 3014 http://localhost:3014"
+
   },
   "repository": {
     "type": "git",
