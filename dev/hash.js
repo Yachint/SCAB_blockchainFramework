@@ -26,7 +26,7 @@ function giveHash(currBlkData, previousBlkHash){
         }
     }
 
-    return mHash;
+    return {hash : mHash, nonce: nonce};
 }
 
 module.exports = giveHash;

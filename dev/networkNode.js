@@ -1,4 +1,5 @@
 var express = require('express');
+const crypto = require('crypto');
 const process = require('process');
 const hash = require('./hash');
 var app = express();
@@ -102,13 +103,24 @@ app.post('/transaction/store/broadcast', function(req, res){
 app.get('/mine', function(req, res){
     const lastBlock = scabChain.getLastBlock();
     const previousBlockHash = lastBlock['hash'];
+    const previousDHThash = lastBlock['DHT_Hash'];
     const currentBlockData = {
         transactions: scabChain.pendingTransactions,
         index: lastBlock['index']+1
     }
 
     const blockHash = hash(currentBlockData, previousBlockHash);
-    const newBlock = scabChain.createNewBlock(previousBlockHash,blockHash);
+    const currentDHThash = crypto
+    .createHash('sha256')
+    .update(JSON.stringify(scabChain.hashTable)+blockHash['nonce']).digest("hex");
+
+    const newBlock = scabChain.createNewBlock(
+        previousBlockHash,
+        blockHash['hash'],
+        blockHash['nonce'],
+        currentDHThash,
+        previousDHThash
+    );
 
     const requestPromises = []
     scabChain.networkNodes.forEach(existingNode => {
@@ -123,13 +135,31 @@ app.get('/mine', function(req, res){
         requestPromises.push(rp(requestOptions));
     });
 
+    let nodeReplies = 0;
+
     Promise.all(requestPromises)
     .then(data => {
+        data.forEach(elem => {
+            console.log(elem['reply']);
+            if(elem['reply']=== 'PASS'){
+                nodeReplies++;
+            }
+        });
+
+        if(nodeReplies >= (scabChain.networkNodes.length+1)/2){
+            scabChain.receiveUpdate(newBlock);
+            scabChain.invokeHashTableUpdate();
+            console.log("Block was approved by Network, Adding to chain... ");
+        }else{
+            console.log("Block was rejected by Network.");
+            console.log("IN :",nodeReplies," --Total/2 :",(scabChain.networkNodes.length+1)/2);
+        }
         res.json({
             note: "New block mined & broadcasted successfully",
             block: newBlock
         });
     });
+
 });
 
 app.post('/receive-new-block', function(req,res){
@@ -146,12 +176,14 @@ app.post('/receive-new-block', function(req,res){
         scabChain.receiveUpdate(newBlock);
         res.json({
             note : 'New block received and accepted.',
+            reply: 'PASS',
             newBlock: newBlock
         });
     } else { 
         console.log('BAD Block! Hash :',lastBlock.hash,' -- NewHash :',newBlock.previousBlockHash);
         res.json({
             note: 'New block rejected.',
+            reply: 'FAIL',
             newBlock: newBlock
         });
     }
@@ -173,11 +205,70 @@ app.post('/update-DHT', function(req,res){
 
 });
 
+app.get('/consensus', function(req, res){
+    const reqProms = []
+    scabChain.networkNodes.forEach(existingNodeUrl => {
+        const requestOptions = {
+            uri: existingNodeUrl+'/blockchain',
+            method: 'GET',
+            json: true
+        };
+
+        reqProms.push(rp(requestOptions));
+    });
+
+    Promise.all(reqProms).then(blockchains => {
+        const currentChainLength = scabChain.chainSize;
+        let maxChainLength = currentChainLength;
+        let newLongestChain = null;
+        let newPendingTransactions = null;
+        let newDHT = null;
+        let maxLength = null;
+        let nodeURL = null
+
+        blockchains.forEach(blkChain => {
+            if(blkChain.chain.length > maxChainLength){
+                maxChainLength = blkChain.chain.length;
+                newLongestChain = blkChain.chain;
+                newPendingTransactions = blkChain.pendingTransactions;
+                newDHT = blkChain.hashTable;
+                maxLength = blkChain.chainSize;
+                nodeURL = blkChain.currentNodeUrl;
+            }
+        });
+
+
+        if(!newLongestChain 
+            || (newLongestChain && !scabChain.chainIsValid(newLongestChain))){
+                console.log('No longest chain that is also valid, CONTINUING... ');
+                res.json({ 
+                    note: 'Current chain hash not been replaced',
+                    chain: scabChain.chain
+                })
+            }
+        else if(newLongestChain && scabChain.chainIsValid(newLongestChain)){
+            console.log('Found Valid Longest Chain at ',nodeURL,', REPLACING... ');
+            scabChain.chain = newLongestChain;
+            scabChain.pendingTransactions = newPendingTransactions;
+            scabChain.hashTable.replaceHashTable(newDHT);
+            scabChain.chainSize = maxLength;
+            res.json({
+                note: 'This chain has been replaced',
+                chain: scabChain.chain
+            })
+        }
+
+    }).catch((error)=>{
+        console.log('ERROR :',error);
+    });
+});
+
 
 app.post('/register-and-broadcast-node', function(req,res){
     const newNodeUrl = req.body.newNodeUrl;
 
-    if(scabChain.networkNodes.indexOf(newNodeUrl) == -1){
+    if(scabChain.networkNodes.indexOf(newNodeUrl) == -1 
+    && scabChain.currentNodeUrl !== newNodeUrl){
         scabChain.networkNodes.push(newNodeUrl);
     }
 

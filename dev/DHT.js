@@ -12,6 +12,10 @@ function DHT(){
     this.sizeOfTable = 0;
 };
 
+DHT.prototype.replaceHashTable = function(newDHT){
+    this.HashTable = {...newDHT['HashTable']};
+}
+
 DHT.prototype.updateWithDetails = function(type,subType,primaryKey,change){
         if(subType=='NONE'){
             this.HashTable[type][primaryKey] = change;

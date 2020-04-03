@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const blockHasher = require('./hash');
 const DHT = require('./DHT');
 const uuid = require('uuid');
 const currentNodeUrl = process.argv[3];
@@ -13,7 +12,7 @@ function blk(){
     this.hashTable = new DHT();
     this.currentNodeUrl = currentNodeUrl;
     this.networkNodes = [];
-    this.createNewBlock(100,'0');
+    this.receiveUpdate(this.createNewBlock(100,'0','0','0x1','0x0'));
 };
 
 blk.prototype.addToPendingTx = function(transactionObj){
@@ -21,22 +20,24 @@ blk.prototype.addToPendingTx = function(transactionObj){
     return this.getLastBlock()['index'] + 1;
 };
 
-blk.prototype.createNewBlock = function(previousBlockhash, givenHash){
+blk.prototype.createNewBlock = function(previousBlockhash, givenHash, givenNonce, givenStateHash, prevStateHash){
     const newBlock = {
         index: this.chain.length+1,
         timestamp: Date.now(),
         transactions: this.pendingTransactions,
         hash: givenHash,
-        previousBlockhash : previousBlockhash
+        nonce: givenNonce,
+        previousBlockhash: previousBlockhash,
+        DHT_Hash: givenStateHash,
+        DHT_PrevHash: prevStateHash
     };
-
-    this.hashTable.updateHashTable(this.pendingTransactions,this.networkNodes);
-    this.pendingTransactions = [];
-    this.chain.push(newBlock);
-    this.chainSize++;
 
     return newBlock;
 };
+
+blk.prototype.invokeHashTableUpdate = function(){
+    this.hashTable.updateHashTable(this.pendingTransactions,this.networkNodes);
+}
 
 blk.prototype.receiveUpdate = function(newBlock){
     this.pendingTransactions = [];
@@ -105,6 +106,58 @@ blk.prototype.createNewStoreTx = function(typeOfStore, changedState){
     }
 
     return newTransaction;
+}
+
+blk.prototype.chainIsValid = function(blockchain){
+    let validChain = true;
+
+    for( var i = 1; i < blockchain.length; i++ ){
+        const currentBlock = blockchain[i];
+        const previousBlock = blockchain[i-1];
+        const hashInput = JSON.stringify({
+            transactions: currentBlock['transactions'],
+            index: currentBlock['index']
+        })+previousBlock['hash']+currentBlock['nonce'];
+         
+        const blockHash = crypto.createHash('sha256').update(hashInput).digest('hex');
+
+        if(currentBlock['DHT_PrevHash'] !== previousBlock['DHT_Hash']){
+            validChain = false;
+            console.log('Node :',blockchain.currentNodeUrl,' - Block #',currentBlock['index'],' : FAILED -> DHT Hash Test');
+        }
+
+        if(blockHash.substring(0,4) !== '0000') {
+            validChain = false;
+            console.log('Node :',blockchain.currentNodeUrl,' - Block #',currentBlock['index'],' : FAILED -> Hash Test');
+        }
+        
+        if(currentBlock['previousBlockhash'] !== previousBlock['hash']){
+            validChain = false;
+            console.log('Node :',blockchain.currentNodeUrl,' - Block #',currentBlock['index'],' : FAILED -> Concurrent Block Test');
+        }
+    }
+
+    const genesisBlock = blockchain[0];
+    const correctNonce = genesisBlock['nonce'] === '0';
+    const correctPrevBlkHash = genesisBlock['previousBlockhash'] === 100;
+    const correctHash = genesisBlock['hash'] === '0';
+    const correctTxCount = genesisBlock['transactions'].length === 0;
+    const correctDHTprev = genesisBlock['DHT_PrevHash'] === '0x0';
+    const correctDHTcurr = genesisBlock['DHT_Hash'] ==='0x1';
+
+    if(!correctNonce 
+        || !correctPrevBlkHash 
+        || !correctHash
+        || !correctTxCount
+        || !correctDHTprev
+        || !correctDHTcurr){
+            validChain = false;
+            console.log('Node :',blockchain.currentNodeUrl,' : FAILED -> Genesis Block Test');
+            console.log(correctNonce,' ',correctPrevBlkHash,' ',correctHash, ' ',correctTxCount, ' ', correctDHTprev, ' ', correctDHTcurr);
+        }
+
+    if(validChain) console.log('PASSED - All tests!');
+    return validChain;
 }
 
 const createBlobHash = (state) => {
