@@ -48,6 +48,38 @@ app.post('/transaction/store/receive', function(req,res){
     res.json({ note: 'Transaction will be added in block'+blkIndex});
 });
 
+app.get('/compress/full', async function(req,res){
+    const { hash, sig } = await scabChain.compressChain();
+    console.log('IPFS hash: ', hash);
+    console.log('Chain Signature: ', sig);
+    const lastBlock = scabChain.getLastBlock();
+    const previousBlockHash = lastBlock['hash'];
+    const previousDHThash = lastBlock['DHT_Hash'];
+    
+
+    const currentDHThash = crypto
+    .createHash('sha256')
+    .update(JSON.stringify(scabChain.hashTable)+hash).digest("hex");
+
+
+    const newBlock = scabChain.createNewBlock(
+        previousBlockHash,
+        hash,
+        sig,
+        currentDHThash,
+        previousDHThash
+    );
+
+    scabChain.receiveCompressed(newBlock);
+
+    res.json({
+        note: 'Chain Compressed!',
+        superBlock: newBlock
+    });
+
+
+});
+
 app.post('/transaction/inventory/broadcast', function(req, res){
     const txObj = scabChain
                   .createNewInventoryTx(req.body.prodId,
@@ -140,19 +172,19 @@ app.get('/mine', function(req, res){
     Promise.all(requestPromises)
     .then(data => {
         data.forEach(elem => {
-            console.log(elem['reply']);
+            //console.log(elem['reply']);
             if(elem['reply']=== 'PASS'){
                 nodeReplies++;
             }
         });
-
-        if(nodeReplies >= (scabChain.networkNodes.length+1)/2){
+        
+        if(nodeReplies >= (Math.floor(scabChain.networkNodes.length+1/2))){
             scabChain.receiveUpdate(newBlock);
             scabChain.invokeHashTableUpdate();
             console.log("Block was approved by Network, Adding to chain... ");
         }else{
             console.log("Block was rejected by Network.");
-            console.log("IN :",nodeReplies," --Total/2 :",(scabChain.networkNodes.length+1)/2);
+            console.log("IN :",nodeReplies," --Total/2 :",(Math.floor(scabChain.networkNodes.length+1/2)));
         }
         res.json({
             note: "New block mined & broadcasted successfully",

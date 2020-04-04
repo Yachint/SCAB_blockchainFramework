@@ -9,7 +9,6 @@
     "node_2": "nodemon --watch dev -e js dev/networkNode.js 3012 http://localhost:3012",
     "node_3": "nodemon --watch dev -e js dev/networkNode.js 3013 http://localhost:3013",
     "node_4": "nodemon --watch dev -e js dev/networkNode.js 3014 http://localhost:3014"
-
   },
   "repository": {
     "type": "git",
@@ -26,6 +25,8 @@
     "body-parser": "^1.19.0",
     "crypto": "^1.0.1",
     "express": "^4.17.1",
+    "ipfs-api": "^26.1.2",
+    "lodash": "^4.17.15",
     "nodemon": "^2.0.2",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",

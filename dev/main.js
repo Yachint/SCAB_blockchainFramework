@@ -2,6 +2,8 @@ const crypto = require('crypto');
 const DHT = require('./DHT');
 const uuid = require('uuid');
 const currentNodeUrl = process.argv[3];
+const _ = require('lodash');
+const IpfsClient = require('./IPFS_Test');
 
 function blk(){
     this.hashTable = {};
@@ -37,6 +39,11 @@ blk.prototype.createNewBlock = function(previousBlockhash, givenHash, givenNonce
 
 blk.prototype.invokeHashTableUpdate = function(){
     this.hashTable.updateHashTable(this.pendingTransactions,this.networkNodes);
+}
+
+blk.prototype.receiveCompressed = function(superBlock){
+    this.chain.push(superBlock);
+    this.chainSize++;
 }
 
 blk.prototype.receiveUpdate = function(newBlock){
@@ -106,6 +113,20 @@ blk.prototype.createNewStoreTx = function(typeOfStore, changedState){
     }
 
     return newTransaction;
+}
+
+blk.prototype.compressChain = async function(){
+
+    const chainSig = crypto
+    .createHash('sha256')
+    .update(JSON.stringify(_.drop(this.chain)))
+    .digest('hex');
+    const chainToCompress = _.drop(this.chain);
+    const IPFS_hash = await IpfsClient(chainToCompress);
+    this.chain = _.dropRight(this.chain,this.chain.length-1);
+    this.chainSize = 1;
+    return {hash: IPFS_hash, sig: chainSig};
+
 }
 
 blk.prototype.chainIsValid = function(blockchain){
