@@ -10,6 +10,7 @@ var bodyParser = require('body-parser');
 const scabChain = new blockchain();
 const rp = require('request-promise');
 const port = process.argv[2];
+const IpfsExtract = require('./IPFS_ExtractTest');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // support json encoded bodies
@@ -48,11 +49,42 @@ app.post('/transaction/store/receive', function(req,res){
     res.json({ note: 'Transaction will be added in block'+blkIndex});
 });
 
-app.get('/compress/full', async function(req,res){
-    const { hash, sig } = await scabChain.compressChain();
+app.post('/compress/accept', function(req, res){
+    const superBlock = req.body.superBlock;
+    scabChain.receiveCompressed(superBlock);
+    console.log('Compression Accepted.');
+})
+
+app.post('/compress/check',async function(req, res){
+    const superBlock = req.body.superBlock;
+    //Check if IPFS Data has the correct hash
+    const uploadedChain = await IpfsExtract(superBlock['hash']);
+    console.log('Chain :',uploadedChain);
+
+    const chainSig = crypto
+    .createHash('sha256')
+    .update(JSON.stringify(uploadedChain))
+    .digest('hex');
+
+    if(chainSig === superBlock['nonce']){
+        res.json({
+            note: 'Hash has matched, compression approved',
+            reply: 'PASS'
+        });
+    }
+    else{
+        res.json({
+            note: 'Hash has NOT matched, compression NOT APPROVED',
+            reply: 'FAIL'
+        });
+    }
+});
+
+app.get('/compress/approval', async function(req,res){
+    const { hash, sig } = await scabChain.requestCompressionDetails();
     console.log('IPFS hash: ', hash);
     console.log('Chain Signature: ', sig);
-    const lastBlock = scabChain.getLastBlock();
+    const lastBlock = scabChain.chain[0];
     const previousBlockHash = lastBlock['hash'];
     const previousDHThash = lastBlock['DHT_Hash'];
     
@@ -70,13 +102,77 @@ app.get('/compress/full', async function(req,res){
         previousDHThash
     );
 
-    scabChain.receiveCompressed(newBlock);
+    const requestPromises = [];
 
-    res.json({
-        note: 'Chain Compressed!',
-        superBlock: newBlock
+    scabChain.networkNodes.forEach(existingNode => {
+        const requestOptions = {
+            uri: existingNode + '/compress/check',
+            method: 'POST',
+            body: {
+                superBlock: newBlock
+            },
+            json: true
+        };
+
+        requestPromises.push(rp(requestOptions));
     });
 
+    let nodeReplies = 0;
+
+    Promise.all(requestPromises)
+    .then(data => {
+        data.forEach(elem => {
+            if(elem['reply'] === 'PASS'){
+                nodeReplies++;
+            }
+        });
+        
+        if(nodeReplies >= (Math.floor(scabChain.networkNodes.length+1/2))){
+            console.log('Majority agreed on block compression...');
+            scabChain.receiveCompressed(newBlock);
+
+            //SEND one more request to network for compression the chain
+
+            const reqProms = [];
+
+            scabChain.networkNodes.forEach(existingNode => {
+
+                const reqOpts = {
+                    uri: existingNode+'/compress/accept',
+                    method: 'POST',
+                    body: {
+                        superBlock: newBlock
+                    },
+                    json: true
+                };
+
+                reqProms.push(rp(reqOpts));
+            });
+
+            Promise.all(reqProms)
+            .then(data => {
+                console.log("All nodes informed of compression");
+            }).catch((error)=>{
+                console.log('ERROR :',error);
+            });
+
+            res.json({
+                note: 'Chain Compressed!',
+                superBlock: newBlock
+            });
+
+        }
+        else{
+            console.log('Majority REJECTED block compression...');
+
+            res.json({
+                note: 'Chain Compressed DISAPPROVED By Network',
+                superBlock: newBlock
+            });
+        }
+    }).catch((error)=>{
+        console.log('ERROR :',error);
+    });
 
 });
 

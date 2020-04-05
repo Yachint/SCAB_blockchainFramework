@@ -42,6 +42,8 @@ blk.prototype.invokeHashTableUpdate = function(){
 }
 
 blk.prototype.receiveCompressed = function(superBlock){
+    this.chain = _.dropRight(this.chain,this.chain.length-1);
+    this.chainSize = 1;
     this.chain.push(superBlock);
     this.chainSize++;
 }
@@ -115,18 +117,28 @@ blk.prototype.createNewStoreTx = function(typeOfStore, changedState){
     return newTransaction;
 }
 
-blk.prototype.compressChain = async function(){
+// blk.prototype.compressChain = async function(superBlock){
 
+//     const chainSig = crypto
+//     .createHash('sha256')
+//     .update(JSON.stringify(_.drop(this.chain)))
+//     .digest('hex');
+//     const chainToCompress = _.drop(this.chain);
+//     const IPFS_hash = await IpfsClient(chainToCompress);
+//     this.chain = _.dropRight(this.chain,this.chain.length-1);
+//     this.chainSize = 1;
+//     return {hash: IPFS_hash, sig: chainSig};
+
+// }
+
+blk.prototype.requestCompressionDetails = async function(){
     const chainSig = crypto
     .createHash('sha256')
     .update(JSON.stringify(_.drop(this.chain)))
     .digest('hex');
     const chainToCompress = _.drop(this.chain);
     const IPFS_hash = await IpfsClient(chainToCompress);
-    this.chain = _.dropRight(this.chain,this.chain.length-1);
-    this.chainSize = 1;
     return {hash: IPFS_hash, sig: chainSig};
-
 }
 
 blk.prototype.chainIsValid = function(blockchain){
