@@ -39,20 +39,20 @@ blk.prototype.createNewBlock = function(previousBlockhash, givenHash, givenNonce
 
 blk.prototype.invokeHashTableUpdate = function(){
     this.hashTable.updateHashTable(this.pendingTransactions,this.networkNodes);
-}
+};
 
 blk.prototype.receiveCompressed = function(superBlock){
     this.chain = _.dropRight(this.chain,this.chain.length-1);
     this.chainSize = 1;
     this.chain.push(superBlock);
     this.chainSize++;
-}
+};
 
 blk.prototype.receiveUpdate = function(newBlock){
     this.pendingTransactions = [];
     this.chain.push(newBlock);
     this.chainSize++;
-}
+};
 
 blk.prototype.receive_DHT_updates = function(type,subType,primaryKey,change){
     this.hashTable.updateWithDetails(type,subType,primaryKey,change);

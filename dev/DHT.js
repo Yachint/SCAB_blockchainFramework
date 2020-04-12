@@ -41,6 +41,7 @@ DHT.prototype.updateHashTable = function(pendingTx,networkNodes){
                 this.addToInventory(prodId, changedState, networkNodes);
             }
             case 'Store':{
+                console.log('Triggered!');
                 this.addToStore(transaction.subType, transaction.details.changedState,networkNodes);
             }
         }

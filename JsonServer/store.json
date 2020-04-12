@@ -1,10 +1,50 @@
 {
   "items": [
+    {
+      "prodId": 556,
+      "name": "Wheat surplus 3.5 KG MINIMAL",
+      "img": "http://someImage.com/Wheat",
+      "rating": 4.6,
+      "description": "Only the best quality wheat we sell!!!",
+      "price": 200,
+      "quantity": 20,
+      "id": 1
+    }
   ],
   "sellers": [
+    {
+      "smartContractAdd": "0xCA35b7d915458EF540aDe6068dFe2F44E8fa733c",
+      "name": "McDonalds-India-Delhi",
+      "description": {
+        "additionalInfo": "http://sellerInfo/2334"
+      },
+      "sellerSince": "12-03-2020",
+      "rating": 5,
+      "id": 1
+    }
   ],
   "users": [
+    {
+      "smartContractAdd": "0x4B0897b0513fdC7C541B6d9D7E929C4e5364D2dB",
+      "userOrders": {
+        "orderId": "$3"
+      },
+      "name": "Prakhar Chauhan",
+      "email": "prakhar32322.jiit@laptop.com",
+      "number": 8000009827,
+      "id": 1
+    }
   ],
   "orders": [
+    {
+      "orderHash": "0x250286f5c12a2cf6c4c173818da2e9c1fcc50eb5bcad650f00ebfaf052a564af",
+      "orderId": "43",
+      "deliveryAddress": "AB-12, Green Avenue, Park Lane, Los Angeles, US, 222012",
+      "sellerConAddress": "0x8046085fb6806cAa9b19a4Cd7b3cd96374dD9573",
+      "buyerConAddress": "0x583031D1113aD414F02576BD6afaBfb302140225",
+      "invoice": "IPFS-ADDRESS",
+      "status": "COMPLETED",
+      "id": 1
+    }
   ]
 }
