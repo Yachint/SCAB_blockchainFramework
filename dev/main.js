@@ -141,6 +141,35 @@ blk.prototype.requestCompressionDetails = async function(){
     return {hash: IPFS_hash, sig: chainSig};
 }
 
+blk.prototype.getBlock = function(blockHash){
+    let correctBlock = null;
+    this.chain.forEach(block => {
+        if(block.hash === blockHash){
+            correctBlock = block;
+        }
+    });
+    return correctBlock;
+};
+
+blk.prototype.getTransaction = function(transactionId){  
+    let correctBlock = null;
+    let correctTransaction= null;
+    
+    this.chain.forEach(block => {
+        block.transactions.forEach(transaction => {
+            if(transaction.transactionid === transactionId){
+                correctTransaction = transaction;
+                correctBlock = block;
+            };
+        });
+    });
+
+    return {
+        transaction: correctTransaction,
+        block: correctBlock
+    }
+};
+
 blk.prototype.chainIsValid = function(blockchain){
     let validChain = true;
 

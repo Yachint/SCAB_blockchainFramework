@@ -20,6 +20,7 @@ const registerNodesBulk = require('./Routes/RegisterNodes/registerNodesBulk');
 const compress = require('./Routes/Compress/compress');
 const consensus = require('./Routes/Consensus/consensus');
 const updateDHT = require('./Routes/update-DHT');
+const searchChain = require('./Routes/Search/searchChain');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // support json encoded bodies
@@ -40,6 +41,7 @@ app.use('/consensus', consensus);
 app.use('/register-and-broadcast-node',regAndBdcast);
 app.use('/register-node',registerNode);
 app.use('/register-nodes-bulk',registerNodesBulk);
+app.use('/search',searchChain);
 
 app.listen(port, function(){
     console.log('listening on port '+port+' ...');
