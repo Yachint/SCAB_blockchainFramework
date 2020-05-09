@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -6,10 +6,18 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
+import Modal from '../components/UI_Elements/modal';
+import Table from '../components/Table/table';
+
 const BlockView = () => {
+    const [showDetails, setShowDetails] = useState(false);
+    const openDetailsHandler = () => setShowDetails(true);
+    const closeDetailsHandler =() => setShowDetails(false);
+
 
     const useStyles = makeStyles({
         root: {
+          position: 'relative',
           width: 250,
           marginTop: 120,
           padding: '8px',
@@ -37,7 +45,14 @@ const BlockView = () => {
       const classes = useStyles();
 
     return(
-        
+    <React.Fragment>
+      <Modal
+    show={showDetails}
+    onCancel = {closeDetailsHandler}
+    header={"Block Details :"}
+    footer={<Button onClick={closeDetailsHandler} >CLOSE</Button>}>
+      <Table />
+    </Modal>
     <Card className={classes.root} raised={true}>
       <CardContent>
         <Typography className={classes.title} color="textSecondary" gutterBottom>
@@ -58,10 +73,10 @@ const BlockView = () => {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small">Details</Button>
+        <Button size="small" onClick={openDetailsHandler}>Details</Button>
       </CardActions>
     </Card>
-   
+    </React.Fragment>
     );
 }
 

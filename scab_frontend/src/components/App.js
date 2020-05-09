@@ -7,9 +7,10 @@ import { Container } from '@material-ui/core';
 const App = () => {
     return(
         <Container>
-          <AppNavbar />
-          <BlockView />
-          <Arrow />
+          <AppNavbar>
+              <BlockView />
+              <Arrow />
+          </AppNavbar>
         </Container>
     );
 };

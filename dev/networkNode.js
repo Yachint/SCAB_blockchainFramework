@@ -7,6 +7,8 @@ const nodeAddress = uuid.v1().split('-').join("");
 var bodyParser = require('body-parser');
 const scabChain = new blockchain();
 const port = process.argv[2];
+var cors = require('cors')
+app.use(cors());
 
 
 //-----ROUTES----------------------------------------
