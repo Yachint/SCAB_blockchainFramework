@@ -105,7 +105,8 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
                 const id = this.HashTable['store']['items'][details.prodId]['id'];
                 axios.delete('https://json-server-scab.herokuapp.com/items/'+id).then((response) => {
                     //console.log(response.data);
-                    _.omit(this.HashTable['store']['items'], [details.prodId]);
+                    // _.omit(this.HashTable['store']['items'], [details.prodId]);
+                    delete this.HashTable['store']['items'][details.prodId];
                     this.sendUpdatesToNetwork('store','items',details.prodId,{...temp,...response.data},networkNodes);
                 }).catch(function(error){
                     console.log(error);
