@@ -99,7 +99,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             
             if(this.HashTable['store']['items'][details.prodId]=== undefined){
                 console.log('Trying PUT REQUEST..');
-                axios.post('http://localhost:3001/items',{...details}).then((response) => {
+                axios.post('https://json-server-scab.herokuapp.com/items',{...details}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['items'][details.prodId] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','items',details.prodId,{...temp,...response.data},networkNodes);
@@ -110,7 +110,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             else{
                 const id = this.HashTable['store']['items'][details.prodId]['id'];
                 console.log('Trying PATCH REQUEST..');
-                axios.patch('http://localhost:3001/items/'+id,{...details}).then((response) => {
+                axios.patch('https://json-server-scab.herokuapp.com/items/'+id,{...details}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['items'][details.prodId] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','items',details.prodId,{...temp,...response.data},networkNodes);
@@ -125,7 +125,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             
             if(this.HashTable['store']['sellers'][details.smartContractAdd]=== undefined){
                 console.log('Trying PUT REQUEST..');
-                axios.post('http://localhost:3001/sellers',{...details}).then((response) => {
+                axios.post('https://json-server-scab.herokuapp.com/sellers',{...details}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['sellers'][details.smartContractAdd] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','sellers',details.smartContractAdd,{...temp,...response.data},networkNodes);
@@ -136,7 +136,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             else{
                 const id = this.HashTable['store']['sellers'][details.smartContractAdd]['id'];
                 console.log('Trying PATCH REQUEST..');
-                axios.patch('http://localhost:3001/sellers/'+id,{...details}).then((response) => {
+                axios.patch('https://json-server-scab.herokuapp.com/sellers/'+id,{...details}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['sellers'][details.smartContractAdd] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','sellers',details.smartContractAdd,{...temp,...response.data},networkNodes);
@@ -151,7 +151,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             
             if(this.HashTable['store']['users'][details.smartContractAdd]=== undefined){
                 console.log('Trying PUT REQUEST..');
-                axios.post('http://localhost:3001/users',{...details}).then((response) => {
+                axios.post('https://json-server-scab.herokuapp.com/users',{...details}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['users'][details.smartContractAdd] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','users',details.smartContractAdd,{...temp,...response.data},networkNodes);
@@ -162,7 +162,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             else{
                 const id = this.HashTable['store']['users'][details.smartContractAdd]['id'];
                 console.log('Trying PATCH REQUEST..');
-                axios.patch('http://localhost:3001/users/'+id,{...details}).then((response) => {
+                axios.patch('https://json-server-scab.herokuapp.com/users/'+id,{...details}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['users'][details.smartContractAdd] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','users',details.smartContractAdd,{...temp,...response.data},networkNodes);
@@ -177,7 +177,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             
             if(this.HashTable['store']['orders'][details.orderHash]=== undefined){
                 console.log('Trying PUT REQUEST..');
-                axios.post('http://localhost:3001/orders',{...details}).then((response) => {
+                axios.post('https://json-server-scab.herokuapp.com/orders',{...details}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['orders'][details.orderHash] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','orders',details.orderHash,{...temp,...response.data},networkNodes);
@@ -188,7 +188,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             else{
                 const id = this.HashTable['store']['orders'][details.orderHash]['id'];
                 console.log('Trying PATCH REQUEST..');
-                axios.patch('http://localhost:3001/orders/'+id,{...details}).then((response) => {
+                axios.patch('https://json-server-scab.herokuapp.com/orders/'+id,{...details}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['orders'][details.orderHash] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','orders',details.orderHash,{...temp,...response.data},networkNodes);
