@@ -1,6 +1,7 @@
 const template = require('./storeObjectTemplate');
 const axios = require('axios');
 const rp = require('request-promise');
+const _ = require('lodash');
 
 const buildTemplate = new template();
 
@@ -22,7 +23,10 @@ DHT.prototype.updateWithDetails = function(type,subType,primaryKey,change){
         }
         else{
             console.log('Type: ',type,' -- subType :',subType,' -- key :',primaryKey);
-            if(this.HashTable[type][subType][primaryKey] === undefined){
+            if(change['delete'] === 'true'){
+                _.omit(this.HashTable[type][subType],[primaryKey]);
+            }
+            else if(this.HashTable[type][subType][primaryKey] === undefined){
                 this.HashTable[type][subType][primaryKey] = change;
             }
             else{
@@ -96,27 +100,39 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
     switch(type){
         case 'item' :{
             const temp = buildTemplate.getItemTemplate();
-            
-            if(this.HashTable['store']['items'][details.prodId]=== undefined){
-                console.log('Trying PUT REQUEST..');
-                axios.post('https://json-server-scab.herokuapp.com/items',{...details}).then((response) => {
-                    console.log(response.data);
-                    this.HashTable['store']['items'][details.prodId] = {...temp,...response.data};
-                    this.sendUpdatesToNetwork('store','items',details.prodId,{...temp,...response.data},networkNodes);
-                }).catch(function(error){
-                    console.log(error);
-                });
-            }
-            else{
+
+            if(details['delete'] === 'true'){
                 const id = this.HashTable['store']['items'][details.prodId]['id'];
-                console.log('Trying PATCH REQUEST..');
-                axios.patch('https://json-server-scab.herokuapp.com/items/'+id,{...details}).then((response) => {
-                    console.log(response.data);
-                    this.HashTable['store']['items'][details.prodId] = {...temp,...response.data};
+                axios.delete('https://json-server-scab.herokuapp.com/items/'+id).then((response) => {
+                    //console.log(response.data);
+                    _.omit(this.HashTable['store']['items'], [details.prodId]);
                     this.sendUpdatesToNetwork('store','items',details.prodId,{...temp,...response.data},networkNodes);
                 }).catch(function(error){
                     console.log(error);
                 });
+            }else{
+                
+                if(this.HashTable['store']['items'][details.prodId]=== undefined){
+                    console.log('Trying PUT REQUEST..');
+                    axios.post('https://json-server-scab.herokuapp.com/items',{...details}).then((response) => {
+                        console.log(response.data);
+                        this.HashTable['store']['items'][details.prodId] = {...temp,...response.data};
+                        this.sendUpdatesToNetwork('store','items',details.prodId,{...temp,...response.data},networkNodes);
+                    }).catch(function(error){
+                        console.log(error);
+                    });
+                }
+                else{
+                    const id = this.HashTable['store']['items'][details.prodId]['id'];
+                    console.log('Trying PATCH REQUEST..');
+                    axios.patch('https://json-server-scab.herokuapp.com/items/'+id,{...details}).then((response) => {
+                        console.log(response.data);
+                        this.HashTable['store']['items'][details.prodId] = {...temp,...response.data};
+                        this.sendUpdatesToNetwork('store','items',details.prodId,{...temp,...response.data},networkNodes);
+                    }).catch(function(error){
+                        console.log(error);
+                    });
+                }
             }
             break;
         }
