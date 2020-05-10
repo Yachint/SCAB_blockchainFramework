@@ -9,6 +9,7 @@ const scabChain = new blockchain();
 const port = process.argv[2] || process.env.PORT || 3000;
 var cors = require('cors');
 app.use(cors());
+const axios = require('axios');
 
 
 //-----ROUTES----------------------------------------
@@ -47,7 +48,16 @@ app.use('/search',searchChain);
 
 app.listen(port, function(){
     console.log('listening on port '+port+' ...');
+    timer();
 });
 
+const callFramework = () => {
+    console.log("GET Called !",new Date);
+    axios.get('https://json-server-scab.herokuapp.com/items');
+    axios.get('http://scab-blockchain.herokuapp.com/');
+    setTimeout(timer, 12*1000);
+}
 
-
+const timer = () => {
+    setTimeout(callFramework, 12*1000);
+}
