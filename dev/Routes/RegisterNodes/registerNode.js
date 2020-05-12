@@ -6,7 +6,7 @@ router.route('/').post((req,res) => {
 
     const newNodeUrl = req.body.newNodeUrl;
     if(scabChain.networkNodes.indexOf(newNodeUrl) === -1 
-        && scabChain.currentNodeUrl !== newNodeUrl){
+        && scabChain.currentNodeUrl !== newNodeUrl && newNodeUrl !== null){
         scabChain.networkNodes.push(newNodeUrl);
     }
     res.json({ note: 'New node registered successfully.'});
