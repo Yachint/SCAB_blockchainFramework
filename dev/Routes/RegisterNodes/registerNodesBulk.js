@@ -7,7 +7,7 @@ router.route('/').post((req,res) => {
     const allNetworkNodes  = req.body.allNetworkNodes;
     allNetworkNodes.forEach(networkNodeUrl => {
         if(scabChain.networkNodes.indexOf(networkNodeUrl) === -1 
-        && scabChain.currentNodeUrl !== networkNodeUrl && newNodeUrl !== null){
+        && scabChain.currentNodeUrl !== networkNodeUrl && networkNodeUrl !== null){
             scabChain.networkNodes.push(networkNodeUrl);
         }
     });
