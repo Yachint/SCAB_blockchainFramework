@@ -40,7 +40,8 @@ TemplateProvider.prototype.getUserTemplate= function(){
         userOrders: [],
         name: null,
         email: null,
-        number: 0
+        number: 0,
+        updateHash: []
     };
 };
 

@@ -55,9 +55,9 @@ const callFramework = () => {
     console.log("GET Called !",new Date);
     axios.get('https://json-server-scab.herokuapp.com/items');
     axios.get('http://scab-blockchain.herokuapp.com/');
-    setTimeout(timer, 12*1000);
+    setTimeout(timer, 14*100000);
 }
 
 const timer = () => {
-    setTimeout(callFramework, 12*1000);
+    setTimeout(callFramework, 14*100000);
 }

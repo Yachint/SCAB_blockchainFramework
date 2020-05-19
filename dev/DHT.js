@@ -2,6 +2,7 @@ const template = require('./storeObjectTemplate');
 const axios = require('axios');
 const rp = require('request-promise');
 const _ = require('lodash');
+const UserAddon = require('./UserAddon');
 
 const buildTemplate = new template();
 
@@ -168,24 +169,56 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             
             if(this.HashTable['store']['users'][details.smartContractAdd]=== undefined){
                 console.log('Trying PUT REQUEST..');
-                axios.post('https://json-server-scab.herokuapp.com/users',{...details}).then((response) => {
+                
+                UserAddon(details, details.smartContractAdd).then((updHash) => {
+                    const newDetails = {
+                        smartContractAdd: details.smartContractAdd,
+                        updateHash: [updHash]
+                    }
+                    
+                    axios.post('https://json-server-scab.herokuapp.com/users',{...newDetails}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['users'][details.smartContractAdd] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','users',details.smartContractAdd,{...temp,...response.data},networkNodes);
-                }).catch(function(error){
-                    console.log(error);
+                    }).catch(function(error){
+                        console.log(error);
+                    });
+                    
                 });
+                
             }
             else{
                 const id = this.HashTable['store']['users'][details.smartContractAdd]['id'];
+                const hashArray = this.HashTable['store']['users'][details.smartContractAdd]['updateHash'];
                 console.log('Trying PATCH REQUEST..');
-                axios.patch('https://json-server-scab.herokuapp.com/users/'+id,{...details}).then((response) => {
-                    console.log(response.data);
-                    this.HashTable['store']['users'][details.smartContractAdd] = {...temp,...response.data};
-                    this.sendUpdatesToNetwork('store','users',details.smartContractAdd,{...temp,...response.data},networkNodes);
-                }).catch(function(error){
-                    console.log(error);
-                });
+
+                if(details['delete'] === 'true'){
+                    const id = this.HashTable['store']['users'][details.smartContractAdd]['id'];
+                    axios.delete('https://json-server-scab.herokuapp.com/users/'+id).then((response) => {
+                        delete this.HashTable['store']['users'][details.smartContractAdd];
+                        this.sendUpdatesToNetwork('store','users',details.smartContractAdd,{...temp,...response.data},networkNodes);
+                    }).catch(function(error){
+                        console.log(error);
+                    });
+                } else {
+                    UserAddon(details, details.smartContractAdd).then((updHash) => {
+                        console.log(updHash);
+                        const newDetails = {
+                            smartContractAdd: details.smartContractAdd,
+                            updateHash: _.concat(hashArray, updHash)
+                        }
+                        
+                        axios.patch('https://json-server-scab.herokuapp.com/users/'+id,{...newDetails}).then((response) => {
+                        console.log(response.data);
+                        this.HashTable['store']['users'][details.smartContractAdd] = {...temp,...response.data};
+                        this.sendUpdatesToNetwork('store','users',details.smartContractAdd,{...temp,...response.data},networkNodes);
+                        }).catch(function(error){
+                            console.log(error);
+                        });
+                        
+                    });
+                }
+                
             }
             break;
         }
