@@ -2,7 +2,7 @@ const decrypt = require('../../../apis/Decrypt');
 const IPFS_Download = require('../../../apis/IPFS_Download');
 const router = require('express').Router();
 
-router.route('/').get((req,res) => {
+router.route('/').post((req,res) => {
     const encrypted = req.body.enc;
     const keyHash = req.body.key;
 
