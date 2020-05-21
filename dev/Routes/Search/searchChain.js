@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-router.route('/block/:blockHash').get((req,res) => {
+router.route('/block/:blockHash').post((req,res) => {
     let scabChain = req.app.get('scabChain');
 
     const blockHash = req.params.blockHash;
