@@ -5,11 +5,8 @@ var decryptStringWithRsaPrivateKey = function(toDecrypt, relativeOrAbsolutePatht
     var buffer = Buffer.from(toDecrypt, "base64");
     //var decrypted = crypto.privateDecrypt(privateKey, buffer);
     const decrypted = crypto.privateDecrypt(
-        {
-            key: privateKey.toString(),
-            passphrase: 'ded',
-        },
-        buffer,
+        privateKey,
+        buffer
     )
     return decrypted.toString("utf8");
 };

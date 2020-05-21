@@ -17,6 +17,7 @@ const handleRequest = async (changedState, accAddr) => {
     
     const convertedObj = JSON.parse(updateObj);
     const newUpdate = {
+        timestamp: convertedObj['timestamp'],
         from: convertedObj['from'],
         amount: convertedObj['amount'],
         action: convertedObj['action']
