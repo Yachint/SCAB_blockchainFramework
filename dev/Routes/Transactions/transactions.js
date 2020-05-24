@@ -1,6 +1,8 @@
 const router = require('express').Router();
 // const hash = require('./hash');
 const rp = require('request-promise');
+const uuid = require('uuid');
+const { AdditionalInfo, Inventory, stats } = require('../../inventoryObjectTemplate');
 
 router.route('/').post((req,res) => {
     let scabChain = req.app.get('scabChain');
@@ -10,6 +12,35 @@ router.route('/').post((req,res) => {
     req.body.changedState);
     const blkIndex = scabChain.addToPendingTx(txObj);
     res.json({ note : 'Transaction will be added in block :'+blkIndex});
+});
+
+router.route('/inventory/create').post((req, res) => {
+    let scabChain = req.app.get('scabChain');
+    const newAddress = uuid.v1().split('-').join("");
+
+    const txObj = scabChain.createNewInventoryTx(newAddress,req.body.changedState);
+    
+    scabChain.addToPendingTx(txObj);
+    
+    const requestPromises = [];
+    scabChain.networkNodes.forEach(existingNode => {
+        //console.log(existingNode);
+        const requestOptions = {
+            uri: existingNode+'/transaction/inventory/receive',
+            method: 'POST',
+            body: txObj,
+            json: true
+        };
+
+        requestPromises.push(rp(requestOptions));
+    });
+
+    Promise.all(requestPromises)
+    .then(data => {
+        res.json({ id: newAddress });
+    });
+
+
 });
 
 router.route('/inventory/receive').post((req,res) => {

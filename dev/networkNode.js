@@ -50,6 +50,7 @@ app.use('/decrypt',DecryptEngine);
 
 app.listen(port, function(){
     console.log('listening on port '+port+' ...');
+    console.log('Node Address: ',nodeAddress);
     timer();
 });
 

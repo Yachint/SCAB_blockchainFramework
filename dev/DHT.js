@@ -57,12 +57,24 @@ DHT.prototype.updateHashTable = function(pendingTx,networkNodes){
 DHT.prototype.addToInventory = function(prodId, newState, networkNodes){
     const target = this.HashTable['inventory'];
     if(target[prodId] == null){
-        target[prodId] = {...newState};
-        this.sendUpdatesToNetwork('inventory','NONE',prodId,{...newState},networkNodes);
+        axios.post('https://json-server-scab.herokuapp.com/inventory',{prodId: prodId, ...newState}).then((response) => {
+            console.log(response.data);
+            target[prodId] = {...response.data};
+            this.sendUpdatesToNetwork('inventory','NONE',prodId,{...response.data},networkNodes);
+        }).catch(function(error){
+            console.log(error);
+        });
+        
     }else{
-        const currentState = target[prodId];
-        target[prodId] = {...currentState,...newState};
-        this.sendUpdatesToNetwork('inventory','NONE',prodId,{...currentState,...newState},networkNodes);
+        const id = target[prodId]['id'];
+        axios.patch('https://json-server-scab.herokuapp.com/inventory/'+id,{prodId: prodId,...newState}).then((response) => {
+            console.log(response.data);
+            const currentState = target[prodId];
+            target[prodId] = {...currentState,...response.data};
+            this.sendUpdatesToNetwork('inventory','NONE',prodId,{...response.data},networkNodes);
+        }).catch(function(error){
+            console.log(error);
+        });
     }
 };
 
