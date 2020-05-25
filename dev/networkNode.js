@@ -56,11 +56,18 @@ app.listen(port, function(){
 
 const callFramework = () => {
     console.log("GET Called !",new Date);
-    axios.get('https://json-server-scab.herokuapp.com/items');
-    axios.get('http://scab-blockchain.herokuapp.com/');
-    setTimeout(timer, 14*100000);
+    axios.get('https://json-server-scab.herokuapp.com/items').then(() => {
+        axios.get('https://scab-blockchain.herokuapp.com/').then(() => {
+            axios.get('https://scab-clone.herokuapp.com/blockchain').then(() => {
+                console.log('All called!');
+            })
+        })
+    })
+    
+    
+    setTimeout(timer, 100000);
 }
 
 const timer = () => {
-    setTimeout(callFramework, 14*100000);
+    setTimeout(callFramework, 1400000);
 }
