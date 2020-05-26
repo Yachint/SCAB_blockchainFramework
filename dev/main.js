@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const DHT = require('./DHT');
 const uuid = require('uuid');
-const currentNodeUrl = process.argv[3] || 'https://scab-278321.el.r.appspot.com';
+const currentNodeUrl = process.argv[3] || 'https://scab-blockchain.herokuapp.com';
 const _ = require('lodash');
 const IpfsClient = require('./IPFS_Test');
 

@@ -6,7 +6,7 @@ const uuid = require('uuid');
 const nodeAddress = uuid.v1().split('-').join("");
 var bodyParser = require('body-parser');
 const scabChain = new blockchain();
-const port = 8080;
+const port = process.argv[2] || process.env.PORT || 3000;
 var cors = require('cors');
 app.use(cors());
 const axios = require('axios');
