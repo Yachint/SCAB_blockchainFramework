@@ -6,7 +6,7 @@ const uuid = require('uuid');
 const nodeAddress = uuid.v1().split('-').join("");
 var bodyParser = require('body-parser');
 const scabChain = new blockchain();
-const port = process.argv[2] || process.env.PORT || 3000;
+const port = 8080;
 var cors = require('cors');
 app.use(cors());
 const axios = require('axios');
@@ -51,7 +51,8 @@ app.use('/decrypt',DecryptEngine);
 app.listen(port, function(){
     console.log('listening on port '+port+' ...');
     console.log('Node Address: ',nodeAddress);
-    timer();
+    // timer();
+    // routineMiner();
 });
 
 const callFramework = () => {
@@ -66,6 +67,24 @@ const callFramework = () => {
     
     
     setTimeout(timer, 100000);
+}
+
+const routineMiner = () => {
+    const numOfTx = scabChain.pendingTransactions.length;
+    if(scabChain.pendingTransactions.length > 0){
+        const url = scabChain.currentNodeUrl+'/mine';
+        axios.get(url).then(() => {
+            console.log('Transactions processed: ', numOfTx)
+        });
+    } else {
+        console.log('No updates: ', numOfTx);
+    }
+
+    setTimeout(mineTimer, 100);
+}
+
+const mineTimer = () => {
+    setTimeout(routineMiner, 2500);
 }
 
 const timer = () => {

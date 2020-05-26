@@ -57,7 +57,7 @@ DHT.prototype.updateHashTable = function(pendingTx,networkNodes){
 DHT.prototype.addToInventory = function(prodId, newState, networkNodes){
     const target = this.HashTable['inventory'];
     if(target[prodId] == null){
-        axios.post('https://json-server-scab.herokuapp.com/inventory',{prodId: prodId, ...newState}).then((response) => {
+        axios.post('https://jsonscab.el.r.appspot.com/inventory',{prodId: prodId, ...newState}).then((response) => {
             console.log(response.data);
             target[prodId] = {...response.data};
             this.sendUpdatesToNetwork('inventory','NONE',prodId,{...response.data},networkNodes);
@@ -67,7 +67,7 @@ DHT.prototype.addToInventory = function(prodId, newState, networkNodes){
         
     }else{
         const id = target[prodId]['id'];
-        axios.patch('https://json-server-scab.herokuapp.com/inventory/'+id,{prodId: prodId,...newState}).then((response) => {
+        axios.patch('https://jsonscab.el.r.appspot.com/inventory/'+id,{prodId: prodId,...newState}).then((response) => {
             console.log(response.data);
             const currentState = target[prodId];
             target[prodId] = {...currentState,...response.data};
@@ -116,7 +116,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
 
             if(details['delete'] === 'true'){
                 const id = this.HashTable['store']['items'][details.prodId]['id'];
-                axios.delete('https://json-server-scab.herokuapp.com/items/'+id).then((response) => {
+                axios.delete('https://jsonscab.el.r.appspot.com/items/'+id).then((response) => {
                     //console.log(response.data);
                     // _.omit(this.HashTable['store']['items'], [details.prodId]);
                     delete this.HashTable['store']['items'][details.prodId];
@@ -128,7 +128,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
                 
                 if(this.HashTable['store']['items'][details.prodId]=== undefined){
                     console.log('Trying PUT REQUEST..');
-                    axios.post('https://json-server-scab.herokuapp.com/items',{...details}).then((response) => {
+                    axios.post('https://jsonscab.el.r.appspot.com/items',{...details}).then((response) => {
                         console.log(response.data);
                         this.HashTable['store']['items'][details.prodId] = {...temp,...response.data};
                         this.sendUpdatesToNetwork('store','items',details.prodId,{...temp,...response.data},networkNodes);
@@ -139,7 +139,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
                 else{
                     const id = this.HashTable['store']['items'][details.prodId]['id'];
                     console.log('Trying PATCH REQUEST..');
-                    axios.patch('https://json-server-scab.herokuapp.com/items/'+id,{...details}).then((response) => {
+                    axios.patch('https://jsonscab.el.r.appspot.com/items/'+id,{...details}).then((response) => {
                         console.log(response.data);
                         this.HashTable['store']['items'][details.prodId] = {...temp,...response.data};
                         this.sendUpdatesToNetwork('store','items',details.prodId,{...temp,...response.data},networkNodes);
@@ -155,7 +155,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             
             if(this.HashTable['store']['sellers'][details.smartContractAdd]=== undefined){
                 console.log('Trying PUT REQUEST..');
-                axios.post('https://json-server-scab.herokuapp.com/sellers',{...details}).then((response) => {
+                axios.post('https://jsonscab.el.r.appspot.com/sellers',{...details}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['sellers'][details.smartContractAdd] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','sellers',details.smartContractAdd,{...temp,...response.data},networkNodes);
@@ -166,7 +166,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             else{
                 const id = this.HashTable['store']['sellers'][details.smartContractAdd]['id'];
                 console.log('Trying PATCH REQUEST..');
-                axios.patch('https://json-server-scab.herokuapp.com/sellers/'+id,{...details}).then((response) => {
+                axios.patch('https://jsonscab.el.r.appspot.com/sellers/'+id,{...details}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['sellers'][details.smartContractAdd] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','sellers',details.smartContractAdd,{...temp,...response.data},networkNodes);
@@ -188,7 +188,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
                         updateHash: [updHash]
                     }
                     
-                    axios.post('https://json-server-scab.herokuapp.com/users',{...newDetails}).then((response) => {
+                    axios.post('https://jsonscab.el.r.appspot.com/users',{...newDetails}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['users'][details.smartContractAdd] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','users',details.smartContractAdd,{...temp,...response.data},networkNodes);
@@ -206,7 +206,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
 
                 if(details['delete'] === 'true'){
                     const id = this.HashTable['store']['users'][details.smartContractAdd]['id'];
-                    axios.delete('https://json-server-scab.herokuapp.com/users/'+id).then((response) => {
+                    axios.delete('https://jsonscab.el.r.appspot.com/users/'+id).then((response) => {
                         delete this.HashTable['store']['users'][details.smartContractAdd];
                         this.sendUpdatesToNetwork('store','users',details.smartContractAdd,{...temp,...response.data},networkNodes);
                     }).catch(function(error){
@@ -220,7 +220,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
                             updateHash: _.concat(hashArray, updHash)
                         }
                         
-                        axios.patch('https://json-server-scab.herokuapp.com/users/'+id,{...newDetails}).then((response) => {
+                        axios.patch('https://jsonscab.el.r.appspot.com/users/'+id,{...newDetails}).then((response) => {
                         console.log(response.data);
                         this.HashTable['store']['users'][details.smartContractAdd] = {...temp,...response.data};
                         this.sendUpdatesToNetwork('store','users',details.smartContractAdd,{...temp,...response.data},networkNodes);
@@ -239,7 +239,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             
             if(this.HashTable['store']['orders'][details.orderHash]=== undefined){
                 console.log('Trying PUT REQUEST..');
-                axios.post('https://json-server-scab.herokuapp.com/orders',{...details}).then((response) => {
+                axios.post('https://jsonscab.el.r.appspot.com/orders',{...details}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['orders'][details.orderHash] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','orders',details.orderHash,{...temp,...response.data},networkNodes);
@@ -250,7 +250,7 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             else{
                 const id = this.HashTable['store']['orders'][details.orderHash]['id'];
                 console.log('Trying PATCH REQUEST..');
-                axios.patch('https://json-server-scab.herokuapp.com/orders/'+id,{...details}).then((response) => {
+                axios.patch('https://jsonscab.el.r.appspot.com/orders/'+id,{...details}).then((response) => {
                     console.log(response.data);
                     this.HashTable['store']['orders'][details.orderHash] = {...temp,...response.data};
                     this.sendUpdatesToNetwork('store','orders',details.orderHash,{...temp,...response.data},networkNodes);

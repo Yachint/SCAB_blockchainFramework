@@ -17,6 +17,15 @@
   },
   "author": "Yachint",
   "license": "MIT",
+  "cloud-repo-tools": {
+    "test": {
+      "app": {
+        "msg": "listening on port 8080 ..."
+      }
+    },
+    "requiresKeyFile": true,
+    "requiresProjectId": true
+    },
   "bugs": {
     "url": "https://github.com/Yachint/SCAB_blockchainFramework/issues"
   },
