@@ -11,7 +11,7 @@ const handleRequest = async (changedState, accAddr) => {
     const updateObj = Decrypt(downloadedCrypt,PRIVATE_KEY);
     console.log('STEP 2:  decrypted :',updateObj);
     
-    const response = await axios.get('https://json-server-scab.herokuapp.com/sellers?smartContractAdd='+accAddr);
+    const response = await axios.get('https://jsonscab.el.r.appspot.com/sellers?smartContractAdd='+accAddr);
     console.log('STEP 3: ASK json server :',response.data[0]);
     const sellerPub = response.data[0].pubKey;
     
