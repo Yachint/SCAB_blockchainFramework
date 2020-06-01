@@ -21,15 +21,18 @@ router.route('/reverseDecrypt').post((req, res) =>{
     const encrypted = req.body.enc;
     const keyHash = req.body.key;
 
-    const decryptedLink = decrypt(encrypted, keyHash);
-
-    IPFS_Download(decryptedLink).then((data) => {
-        const obj = JSON.parse(data);
-
-        res.json({
-            obj: obj
+    IPFS_Download(keyHash).then((key) => {
+        const decryptedLink = decrypt(encrypted, key);
+        IPFS_Download(decryptedLink).then((data) => {
+            const obj = JSON.parse(data);
+    
+            res.json({
+                obj: obj
+            })
         })
     })
+
+    
 })
 
 router.route('/generate').get((req, res) => {
