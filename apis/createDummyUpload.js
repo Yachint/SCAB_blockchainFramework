@@ -3,15 +3,24 @@ const Encrypt = require('./Encrypt');
 const IPFS_Upload = require('./IPFS_Upload');
 
 const update = {
-    timestamp: new Date().toGMTString(),
-    from: "0x73190C25D4C247a388203162aA223a900772978b",
-    amount: '160',
-    action: 'get'
+    timestamp: new Date().toUTCString(),
+    prodId: 'AE670',
+    name: 'Football Shoes 6',
+    description: 'New Venom Brand',
+    toBuyPrice: '$459',
+    toBuyQuantity: '10',
+    JSON_id: '67',
+    status: 'DONE'
 }
 
-const encrypted = Encrypt(JSON.stringify(update),PUBLIC_KEY);
+IPFS_Upload(JSON.stringify(update)).then((data) => {
 
-console.log(encrypted);
+    console.log(data);
+    const encrypted = Encrypt(data,PUBLIC_KEY);
+    console.log(encrypted);
+})
+
+
 
 // const getHash = async () => {
 //     console.log(await IPFS_Upload(encrypted));

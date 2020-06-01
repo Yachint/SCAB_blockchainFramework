@@ -3,6 +3,7 @@ const axios = require('axios');
 const rp = require('request-promise');
 const _ = require('lodash');
 const UserAddon = require('./UserAddon');
+const OrderAddon = require('./OrderAddon');
 
 const buildTemplate = new template();
 
@@ -46,7 +47,7 @@ DHT.prototype.updateHashTable = function(pendingTx,networkNodes){
                 this.addToInventory(prodId, changedState, networkNodes);
             }
             case 'Store':{
-                console.log('Triggered!');
+                console.log('Triggered Store Update!');
                 this.addToStore(transaction.subType, transaction.details.changedState,networkNodes);
             }
         }
@@ -235,28 +236,44 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
             break;
         }
         case 'order':{
-            const temp = buildTemplate.getOrderTemplate();
+            //const temp = buildTemplate.getOrderTemplate();
             
-            if(this.HashTable['store']['orders'][details.orderHash]=== undefined){
+            if(this.HashTable['store']['orders'][details.orderId]=== undefined){
                 console.log('Trying PUT REQUEST..');
-                axios.post('https://json-server-scab.herokuapp.com/orders',{...details}).then((response) => {
+
+                OrderAddon(details).then((updateBlob) => {
+                    const newDetails = {
+                        orderId: details.orderId,
+                        buyer: details.buyer,
+                        seller: details.seller,
+                        updateHash: {
+                            forBuyer: updateBlob.buyerUpdate,
+                            forSeller: updateBlob.sellerUpdate
+                        },
+                        status: details.status
+                    }
+
+                    axios.post('https://json-server-scab.herokuapp.com/orders',{...newDetails}).then((response) => {
                     console.log(response.data);
-                    this.HashTable['store']['orders'][details.orderHash] = {...temp,...response.data};
-                    this.sendUpdatesToNetwork('store','orders',details.orderHash,{...temp,...response.data},networkNodes);
-                }).catch(function(error){
-                    console.log(error);
+                    this.HashTable['store']['orders'][details.orderId] = {...response.data};
+                    this.sendUpdatesToNetwork('store','orders',details.orderId,{...response.data},networkNodes);
+                    }).catch(function(error){
+                        console.log(error);
+                    });
                 });
             }
             else{
-                const id = this.HashTable['store']['orders'][details.orderHash]['id'];
+                const id = this.HashTable['store']['orders'][details.orderId]['id'];
                 console.log('Trying PATCH REQUEST..');
-                axios.patch('https://json-server-scab.herokuapp.com/orders/'+id,{...details}).then((response) => {
-                    console.log(response.data);
-                    this.HashTable['store']['orders'][details.orderHash] = {...temp,...response.data};
-                    this.sendUpdatesToNetwork('store','orders',details.orderHash,{...temp,...response.data},networkNodes);
+                
+                axios.patch('https://json-server-scab.herokuapp.com/orders/'+id,{status: details.status}).then((response) => {
+                console.log(response.data);
+                this.HashTable['store']['orders'][details.orderId] = {...response.data};
+                this.sendUpdatesToNetwork('store','orders',details.orderId,{...response.data},networkNodes);
                 }).catch(function(error){
                     console.log(error);
-                }); 
+                });
+               
             }
             break;
         }
