@@ -1,17 +1,26 @@
 const crypto = require('crypto');
 
-var decryptStringWithRsaPrivateKey = function(toDecrypt, relativeOrAbsolutePathtoPrivateKey) {
-    var privateKey = relativeOrAbsolutePathtoPrivateKey
-    var buffer = Buffer.from(toDecrypt, "base64");
-    //var decrypted = crypto.privateDecrypt(privateKey, buffer);
-    const decrypted = crypto.privateDecrypt(
-        {
-            key: privateKey.toString(),
-            passphrase: ''
-        },
-        buffer
-    )
-    return decrypted.toString("utf8");
-};
+const decrypt = (toDecrypt, relativeOrAbsolutePathtoPrivateKey) => {
 
-module.exports = decryptStringWithRsaPrivateKey;
+    return new Promise((resolve, reject) => {
+        try{
+            var privateKey = relativeOrAbsolutePathtoPrivateKey
+            var buffer = Buffer.from(toDecrypt, "base64");
+            //var decrypted = crypto.privateDecrypt(privateKey, buffer);
+            const decrypted = crypto.privateDecrypt(
+                {
+                    key: privateKey.toString(),
+                    passphrase: '',
+                    padding:crypto.constants.RSA_PKCS1_PADDING
+                },
+                buffer,
+            );
+            console.log(decrypted.toString("utf8"))
+            resolve(JSON.parse(decrypted.toString("utf8")));
+
+        } catch(err) {
+            reject(err);
+        }
+    })   
+}
+module.exports = decrypt;
