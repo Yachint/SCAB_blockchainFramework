@@ -41,6 +41,10 @@ blk.prototype.invokeHashTableUpdate = function(){
     this.hashTable.updateHashTable(this.pendingTransactions,this.networkNodes);
 };
 
+blk.prototype.getHashTable = function(){
+    return this.hashTable;
+}
+
 blk.prototype.receiveCompressed = function(superBlock){
     this.chain = _.dropRight(this.chain,this.chain.length-1);
     this.chainSize = 1;

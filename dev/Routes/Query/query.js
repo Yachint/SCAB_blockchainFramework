@@ -6,7 +6,8 @@ router.route('/orders').post((req,res)=> {
     const type = req.body.type;
     const address = req.body.address;
 
-    const orders = scabChain.hashTable['store']['orders'];
+    const hashTable = scabChain.getHashTable();
+    const orders = hashTable['store']['orders'];
 
     const ordersArray = Object.values(orders);
     let filteredArray;
