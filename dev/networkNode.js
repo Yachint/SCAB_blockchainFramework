@@ -25,6 +25,7 @@ const consensus = require('./Routes/Consensus/consensus');
 const updateDHT = require('./Routes/update-DHT');
 const searchChain = require('./Routes/Search/searchChain');
 const DecryptEngine = require('./Routes/DecryptEngine/decryptFile');
+const Query = require('./Routes/Query/query');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // support json encoded bodies
@@ -47,6 +48,7 @@ app.use('/register-node',registerNode);
 app.use('/register-nodes-bulk',registerNodesBulk);
 app.use('/search',searchChain);
 app.use('/decrypt',DecryptEngine);
+app.use('/query', Query);
 
 app.listen(port, function(){
     console.log('listening on port '+port+' ...');
