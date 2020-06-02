@@ -11,7 +11,6 @@ const decrypt = (toDecrypt, relativeOrAbsolutePathtoPrivateKey) => {
                 {
                     key: privateKey.toString(),
                     passphrase: '',
-                    padding:crypto.constants.RSA_PKCS1_PADDING
                 },
                 buffer,
             );
