@@ -7,8 +7,7 @@ var decryptStringWithRsaPrivateKey = function(toDecrypt, relativeOrAbsolutePatht
     const decrypted = crypto.privateDecrypt(
         {
             key: privateKey.toString(),
-            passphrase: '',
-            padding:crypto.constants.RSA_PKCS1_PADDING
+            passphrase: ''
         },
         buffer
     )
