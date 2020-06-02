@@ -253,26 +253,31 @@ DHT.prototype.addToStore = function(type, details, networkNodes){
                         status: details.status
                     }
 
-                    axios.post('https://json-server-scab.herokuapp.com/orders',{...newDetails}).then((response) => {
-                    console.log(response.data);
-                    this.HashTable['store']['orders'][details.orderId] = {...response.data};
-                    this.sendUpdatesToNetwork('store','orders',details.orderId,{...response.data},networkNodes);
-                    }).catch(function(error){
-                        console.log(error);
-                    });
+                    this.HashTable['store']['orders'][details.orderId] = {...newDetails};
+                    this.sendUpdatesToNetwork('store','orders',details.orderId,{...newDetails},networkNodes);
+
+                    // axios.post('https://json-server-scab.herokuapp.com/orders',{...newDetails}).then((response) => {
+                    // console.log(response.data);
+                    
+                    // }).catch(function(error){
+                    //     console.log(error);
+                    // });
                 });
             }
             else{
                 const id = this.HashTable['store']['orders'][details.orderId]['id'];
                 console.log('Trying PATCH REQUEST..');
                 
-                axios.patch('https://json-server-scab.herokuapp.com/orders/'+id,{status: details.status}).then((response) => {
-                console.log(response.data);
-                this.HashTable['store']['orders'][details.orderId] = {...response.data};
-                this.sendUpdatesToNetwork('store','orders',details.orderId,{...response.data},networkNodes);
-                }).catch(function(error){
-                    console.log(error);
-                });
+                const temp = this.HashTable['store']['orders'][details.orderId];
+                this.HashTable['store']['orders'][details.orderId] = {...temp, status: details.status};
+                this.sendUpdatesToNetwork('store','orders',details.orderId,{...temp, status: details.status},networkNodes);
+
+                // axios.patch('https://json-server-scab.herokuapp.com/orders/'+id,{status: details.status}).then((response) => {
+                // console.log(response.data);
+                
+                // }).catch(function(error){
+                //     console.log(error);
+                // });
                
             }
             break;
