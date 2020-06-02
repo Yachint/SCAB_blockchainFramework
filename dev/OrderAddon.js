@@ -7,7 +7,7 @@ const axios = require('axios');
 
 const handleOrders = async (changedState) => {
 
-    const orderHash = await Decrypt(changedState.info,PRIVATE_KEY);
+    const orderHash = Decrypt(changedState.info,PRIVATE_KEY);
     console.log('STEP 1:  Decrypted Hash :',orderHash);
 
     const orderObj = JSON.parse(await IPFS_Download(orderHash));
