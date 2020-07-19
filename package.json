@@ -37,7 +37,7 @@
     "crypto": "^1.0.1",
     "express": "^4.17.1",
     "ipfs-api": "^26.1.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "node-rsa": "^1.0.8",
     "nodemon": "^2.0.2",
     "request": "^2.88.2",
